@@ -1,4 +1,4 @@
-package tecnicas;
+
 
 public class Paridade {
 
