@@ -1,162 +1,178 @@
 package tecnicas;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.swing.JOptionPane;
 
 public class Hamming {
-	public void iniciaHamming() {
+	private String msg;
+	private int r;
+	private ArrayList<Character> mensagemMaisRedundantes = new ArrayList<Character>();
+	private ArrayList<Character> mensagemErradaMaisRedundantes = new ArrayList<Character>();
+	private String resultadoRedundantesReceptor = "";
+	
+	public void hamming() {
+		msg = JOptionPane.showInputDialog("Informar mensagem: ");
 
-
-		String msg = JOptionPane.showInputDialog("Informar mensagem: ");
-
-		int r = 0, m = msg.length();
-
-
-		while (true)
-
-		{
-
-			if (m + r + 1 <= Math.pow(2, r))
-
-			{
-
-				break;
-
+		calculaQntDeRedundantes();
+		adicionaRedundantesNaMsg();
+		calculaSubstituiR();
+		
+		msg = "";
+		for(int i = mensagemMaisRedundantes.size()-1; i >= 0 ; i--) {
+			msg = msg.concat(mensagemMaisRedundantes.get(i).toString());	
+		}
+		
+		
+		JOptionPane.showMessageDialog(null, "Mensagem \"Hammingficada\" = "+msg, "Resultado", JOptionPane.INFORMATION_MESSAGE);
+		
+		simulandoErro();
+		
+		msg = "";
+		r = 0;
+		mensagemMaisRedundantes.clear();
+		mensagemErradaMaisRedundantes.clear();
+		resultadoRedundantesReceptor = "";
+	}
+	
+	private void simulandoErro() {
+		String msgComErro = "";
+		switch (JOptionPane.showInputDialog("Deseja simular erro??\n"
+				+ "1-SIM\n"
+				+ "2-NAO\n ")) {
+		case "1":
+			msgComErro = JOptionPane.showInputDialog("Mensagem sem erros: "+msg+"\n"
+					+ "Informar mensagem com erro: ");
+			
+			for (int i = msg.length() - 1; i >= 0; i--) {
+				mensagemErradaMaisRedundantes.add(msgComErro.toCharArray()[i]);
 			}
+			
+			calculaRedundantesReceptor();
+			
+			int posicaoErrada = 0;
+			int aux = 0;
+			int aux2 = 0;
+			for(int i = resultadoRedundantesReceptor.length()-1; i >= 0 ; i--) {
+				aux = Character.getNumericValue(resultadoRedundantesReceptor.toCharArray()[i]);
+				aux2 = (int) Math.pow(2, i);
+				posicaoErrada = posicaoErrada + (aux * aux2);
+			}
+			
+			JOptionPane.showMessageDialog(null, "Erro posicao = " +posicaoErrada+"\n"
+					+ "Realizando correcao", "Resultado", JOptionPane.INFORMATION_MESSAGE);
+			
+			System.out.println(Arrays.toString(mensagemErradaMaisRedundantes.toArray()));
+			
+			break;
+		case "2":
+			break;
+		}
+	}
 
+	private void calculaQntDeRedundantes() {
+		boolean interruptor = true;
+
+		do {
 			r++;
-			
-
-		}
-
-		
-		
-		int transLength = msg.length() + r, temp = 0, temp2 = 0, j = 0;
-
-		int transMsg[] = new int[transLength + 1]; 
-
-		for (int i = 1; i <= transLength; i++)
-
-		{
-
-			temp2 = (int) Math.pow(2, temp);
-
-			if (i % temp2 != 0)
-
-			{
-
-				transMsg[i] = Integer.parseInt(Character.toString(msg.charAt(j)));
-
-				j++;
-
+			if (Math.pow(2, r) >= msg.length() + r + 1) {
+				interruptor = !interruptor;
 			}
+		} while (interruptor);
+	}
 
-			else
-
-			{
-
-				temp++;
-
-			}
-
+	private void adicionaRedundantesNaMsg() {
+		for (int i = msg.length() - 1; i >= 0; i--) {
+			mensagemMaisRedundantes.add(msg.toCharArray()[i]);
 		}
 
-		String numeroComBitsP = "";
-		
-		for (int i = 1; i <= transLength; i++)
-
-		{
-			numeroComBitsP = numeroComBitsP + Integer.toString(transMsg[i]);
+		for (int i = 0; i < r; i++) {
+			mensagemMaisRedundantes.add(((int) Math.pow(2, i)) - 1, 'r');
 		}
 		
-		String mensagemJP = "Numero de bit de redundancia necessarios e: "+ r + "\n- " + numeroComBitsP;
-		
-		JOptionPane.showMessageDialog(null, mensagemJP, "Mensagem", JOptionPane.INFORMATION_MESSAGE);
+	}
 
-		String mensJP = "";
-		
+	private void calculaSubstituiR() {
 		for (int i = 0; i < r; i++)
-
 		{
-
 			int smallStep = (int) Math.pow(2, i);
-
 			int bigStep = smallStep * 2;
-
-			int start = smallStep, checkPos = start;
-
-			
-			mensJP = mensJP + "Calculando bit para posicao:  " + smallStep + "\n";
-
-			
-			mensJP = mensJP + "Bits a ser checado: ";
-			
-			String msg1 = "";
-
+			int start = smallStep;
+			int checkPos = start;
+			int numeroDeUns = 0;
 			while (true)
-
 			{
-
 				for (int k = start; k <= start + smallStep - 1; k++)
-
 				{
-
 					checkPos = k;
-
-					
-					msg1 = msg1+checkPos + " ";
-
-					if (k > transLength)
-
-					{
-
-						break;
+					try {
+						
+						if(mensagemMaisRedundantes.get(checkPos-1) != 'r' && mensagemMaisRedundantes.get(checkPos-1) != '0') {
+							
+							numeroDeUns++;
+						}
+					} catch (java.lang.IndexOutOfBoundsException e) {
 
 					}
-
-					transMsg[smallStep] ^= transMsg[checkPos];
-
+					if (k > mensagemMaisRedundantes.size())
+					{
+						break;
+					}
 				}
-
-				if (checkPos > transLength)
-
+				if (checkPos > mensagemMaisRedundantes.size())
 				{
-
 					break;
-
 				}
-
 				else
-
 				{
-
 					start = start + bigStep;
-
 				}
-
 			}
+			mensagemMaisRedundantes.set(smallStep - 1, numeroDeUns%2 == 0 ? '0' : '1');
 			
-			mensJP = mensJP + " " +msg1+ "\n";
-			
-			
-
-
 		}
-		
-		JOptionPane.showMessageDialog(null, mensJP, "", JOptionPane.INFORMATION_MESSAGE);
+	}
 
-		
-		numeroComBitsP = "";
-
-		for (int i = 1; i <= transLength; i++)
-
+	private void calculaRedundantesReceptor() {
+		for (int i = 0; i < r; i++)
 		{
-			numeroComBitsP = numeroComBitsP + Integer.toString(transMsg[i]);
-			System.out.print(transMsg[i]);
+			int smallStep = (int) Math.pow(2, i);
+			int bigStep = smallStep * 2;
+			int start = smallStep;
+			int checkPos = start;
+			int numeroDeUns = 0;
+			while (true)
+			{
+				for (int k = start; k <= start + smallStep - 1; k++)
+				{
+					checkPos = k;
+					try {
+						if(mensagemErradaMaisRedundantes.get(checkPos-1) != '0') {
+							numeroDeUns++;
+						}
+					} catch (java.lang.IndexOutOfBoundsException e) {
 
+					}
+					if (k > mensagemErradaMaisRedundantes.size())
+					{
+						break;
+					}
+				}
+				if (checkPos > mensagemErradaMaisRedundantes.size())
+				{
+					break;
+				}
+				else
+				{
+					start = start + bigStep;
+				}
+			}
+			if(numeroDeUns%2 == 0) {
+				resultadoRedundantesReceptor += "0";
+			}else {
+				resultadoRedundantesReceptor += "1";
+			}
 		}
-		
-		JOptionPane.showMessageDialog(null, "Mensagem \"Hammingficada\" : "+numeroComBitsP, "", JOptionPane.INFORMATION_MESSAGE);
-
-
 	}
 }
