@@ -23,7 +23,7 @@ public class NetworkMain {
 			case "1":
 				System.out.println("Paridade");
 				p.iniciaTecnica(JOptionPane.showInputDialog("Informe cadeia de bits"));
-				JOptionPane.showMessageDialog(null, p.mensagem + "   <- Bit de paridade", "Resultado", JOptionPane.INFORMATION_MESSAGE);
+				
 				break;
 			case "2":
 				
