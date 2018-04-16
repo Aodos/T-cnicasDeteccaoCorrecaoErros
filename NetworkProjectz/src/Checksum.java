@@ -1,28 +1,33 @@
 import javax.swing.JOptionPane;
 
 public class Checksum {
+	
+	String msgFinalEmissor = "";
+	String msgFinalReceptor = "";
+	String msgEmissor = "";
+	String msgParaEnvio = "";
 
 	public void emissor() {
 		
 		//Inicializando a lógica
-		String mensagem="";
+		//A-String mensagem="";
 		int repet;
 		String mensagemJP = "Informe a mensagem a ser enviada:" ;
-		 mensagem= JOptionPane.showInputDialog(mensagemJP);
-		 System.out.println("-------------------Bloco Emissor ------------------\n");
-		 repet= (mensagem.length())/8;
+		msgEmissor= JOptionPane.showInputDialog(mensagemJP);
+		msgFinalEmissor += "-------------------Bloco Emissor ------------------\n";
+		 repet= (msgEmissor.length())/8;
 		 String[] segmento= new String[10];
 		
 		 
 		//Separando os segmentos da mensagem em posições de um vetor a ser somados posteriormente
 		while(repet>0) { 
-			   segmento[repet]= mensagem.substring((repet-1)*8, repet*8);
+			   segmento[repet]= msgEmissor.substring((repet-1)*8, repet*8);
 				repet--;
 			}
 				
 		
 		//Somando Todos os Segmentos para gerar os bits de redundancia
-		repet= (mensagem.length())/8;
+		repet= (msgEmissor.length())/8;
 		int soma=2;
 		while(repet>0) {
 			soma=Integer.parseInt(segmento[repet],2)+soma;
@@ -32,22 +37,24 @@ public class Checksum {
 		
 		///Invertendo o Segmento dos Bits de redundancia
 		String redu=Integer.toBinaryString(soma);
-		System.out.println("Bits de redundancia: " + redu);
+		msgFinalEmissor += "Bits de redundancia: " + redu+"\n";
 		redu=redu.replaceAll("1", "2");
 		redu=redu.replaceAll("0", "1");
 		redu=redu.replaceAll("2", "0");
-		System.out.println("Bits de redundancia invertidos: " + redu);
+		msgFinalEmissor += "Bits de redundancia invertidos: " + redu+"\n";
 		
 		//Gerando o bloco a ser enviado
-		String bloco=mensagem+redu;
-		System.out.println("Bloco a ser enviado :" +bloco + "\n");
-		receptor(bloco);
+		String bloco=msgEmissor+redu;
+		msgFinalEmissor += "Bloco a ser enviado :" +bloco + "\n";
+		JOptionPane.showMessageDialog(null, msgFinalEmissor, "Emissor", JOptionPane.INFORMATION_MESSAGE);
+		msgParaEnvio = bloco;
+		//A-receptor(bloco);
 		
 	}
 
 	public void receptor(String bloco) {
 		
-		System.out.println("-------------------Bloco Receptor ------------------\n");
+		msgFinalReceptor += "-------------------Bloco Receptor ------------------\n";
 		
 		//Incializando a logica
 		String[] segmento= new String[10];
@@ -55,8 +62,8 @@ public class Checksum {
 		String exp;
 		int redu;
 		exp=(bloco.substring((((repet-1)*8)),(bloco.length())));
-		System.out.println("Bloco recebido: "+bloco);
-		System.out.println("Bits de redundancia "+ exp);
+		msgFinalReceptor += "Bloco recebido: "+bloco+"\n";
+		msgFinalReceptor += "Bits de redundancia "+ exp+"\n";
 		redu=Integer.parseInt(exp,2);
 		repet--;
 		
@@ -82,9 +89,10 @@ public class Checksum {
 		
 		//Invertendo o resultado
 		resultado=resultado.replaceAll("1", "0");
-		System.out.println("Soma de todos os segmentos invertida: " + resultado);
+		msgFinalReceptor += "Soma de todos os segmentos invertida: " + resultado+"\n";
 		int resultadoz=Integer.parseInt(resultado);
 		
+		JOptionPane.showMessageDialog(null, msgFinalReceptor, "Receptor", JOptionPane.INFORMATION_MESSAGE);
 		//verificando o resultado para saber se houveram erros
 		if (resultadoz==0){
 			JOptionPane.showMessageDialog(null, "não houve erros");

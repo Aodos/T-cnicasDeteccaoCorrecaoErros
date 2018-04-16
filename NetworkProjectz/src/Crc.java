@@ -32,20 +32,15 @@ public class Crc {
 	
 	
 	public void receptor(String mensagem) {
-		String divisor = "1101";
-		int dividindo;
+		
+	    String gerador = "1101";
 		String resto;
 		int resultado;
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
+		int bloco=Integer.parseInt(mensagem,2);
+		int geradorz=Integer.parseInt(gerador,2);
+		resto= Integer.toBinaryString(bloco%geradorz);
 		
 		
 		
